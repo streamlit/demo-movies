@@ -53,6 +53,25 @@ COLUMN_CONFIG = {
     "Worldwide Gross": st.column_config.NumberColumn(format="dollar"),
     "US DVD Sales": st.column_config.NumberColumn(format="dollar"),
     "Production Budget": st.column_config.NumberColumn(format="dollar"),
+    # TODO: Fix Streamlit bug where options are required in order for color to work:
+    "Distributor": st.column_config.MultiselectColumn(
+        options=set(df.get_column("Distributor").to_list()), color="auto"
+    ),
+    "Director": st.column_config.MultiselectColumn(
+        options=set(df.get_column("Director").to_list()), color="auto"
+    ),
+    "Major Genre": st.column_config.MultiselectColumn(
+        options=set(df.get_column("Major Genre").to_list()), color="auto"
+    ),
+    "Creative Type": st.column_config.MultiselectColumn(
+        options=set(df.get_column("Creative Type").to_list()), color="auto"
+    ),
+    "Source": st.column_config.MultiselectColumn(
+        options=set(df.get_column("Source").to_list()), color="auto"
+    ),
+    "MPAA Rating": st.column_config.MultiselectColumn(
+        options=set(df.get_column("MPAA Rating").to_list()), color="auto"
+    ),
 }
 
 # -----------------------------------------------------------------------------
@@ -422,34 +441,6 @@ with st.container(horizontal=True):
                 y_col=DIRECTOR_COL,
                 x_domain=x_domain,
                 color_domain=all_directors_list,
-            )
-
-    with st.container(width=GRID_WIDTH):
-        with st.expander("Raw data"):
-            # st.subheader("Raw data")
-
-            MEDIAN_IMDB_COL = "Median IMDB rating"
-            MEDIAN_RT_COL = "Median Rotten Tomatoes rating"
-
-            st.dataframe(
-                director_df.select(
-                    DIRECTOR_COL,
-                    **{
-                        MEDIAN_IMDB_COL: pl.col(IMDB_COL).median(),
-                        MEDIAN_RT_COL: pl.col(RT_COL).median(),
-                    },
-                ).filter(pl.col(DIRECTOR_COL).is_not_null()),
-                column_config={
-                    MEDIAN_IMDB_COL: st.column_config.ProgressColumn(
-                        min_value=0,
-                        max_value=10,
-                        color="auto",
-                    ),
-                    MEDIAN_RT_COL: st.column_config.ProgressColumn(
-                        min_value=0, max_value=100, color="auto"
-                    ),
-                },
-                height="stretch",
             )
 
 
