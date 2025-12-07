@@ -1,0 +1,33 @@
+[theme]
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+headingFont = "'IBM Plex Serif':https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+
+baseFontSize = 14
+
+# headingFontWeights = [300, 400, 400, 300, 300, 300]
+headingFontSizes = ["4rem", "2rem", "1rem"]
+
+# headingFontWeights = 800
+showWidgetBorder = true
+
+primaryColor = "#3b82f6"
+borderColor = "#e0e7ff"
+secondaryBackgroundColor = "#fff"
+
+greenColor = "#10b981"
+redColor = "#f43f5e"
+blueColor = "#3b82f6"
+redTextColor = "#f43f5e"
+blueTextColor = "#3b82f6"
+
+chartCategoricalColors = [
+    "#3b82f6", # Blue
+    "#f43f5e", # Rose
+    "#10b981", # Green
+    "#84cc16", # Lime
+    "#f59e0b", # Amber
+    "#2dd4bf", # Teal
+    "#facc15", # Yellow
+    "#8b5cf6", # Violet
+    "#f97316", # Orange
+ ]
