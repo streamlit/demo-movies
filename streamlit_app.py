@@ -250,7 +250,7 @@ with st.container(width=GRID_WIDTH):
 
     Running a LOESS regression on the data, we find a pretty good correlation
     between the two variables, though with some prominent outliers (shown with
-    :red[**red crosses**]).
+    :green[**green crosses**]).
     """
 
 
@@ -464,7 +464,7 @@ with st.container(width=GRID_WIDTH):
     prediction instead? Use the knobs below to run a regression and find out.
 
     The :blue[**blue**] line is the model prediction, and outliers are shown as
-    :red[**red crosses**].
+    :green[**green crosses**].
     """
 
 numeric_cols = [

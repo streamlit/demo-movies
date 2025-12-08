@@ -10,24 +10,25 @@ headingFontSizes = ["3rem", "2rem", "1rem"]
 # headingFontWeights = 800
 showWidgetBorder = true
 
-primaryColor = "#0ea5e9"
-borderColor = "#e0e7ff"
-secondaryBackgroundColor = "#fff"
+primaryColor = "#0ea5e9"             # Tailwind Sky
+borderColor = "#e2e8f0"              # Tailwind Slate
+secondaryBackgroundColor = "#ffffff"
 
-greenColor = "#10b981"
-redColor = "#f43f5e"
-blueColor = "#0ea5e9"
-redTextColor = "#f43f5e"
-blueTextColor = "#0ea5e9"
+greenColor = "#10b981"     # Tailwind Emerald
+redColor = "#f43f5e"       # Tailwind Rose
+blueColor = "#1c83e1"      # Streamlit Blue
+blueTextColor = "#1c83e1"  # Streamlit Blue
+greenTextColor = "#84cc16" # Tailwind Lime
 
 chartCategoricalColors = [
-    "#0ea5e9", # Blue
-    "#f43f5e", # Rose
-    "#10b981", # Green
-    "#84cc16", # Lime
-    "#f59e0b", # Amber
-    "#2dd4bf", # Teal
-    "#facc15", # Yellow
-    "#8b5cf6", # Violet
-    "#f97316", # Orange
+    "#1c83e1", # Tailwind Blue
+    "#84cc16", # Tailwind Lime
+    "#f43f5e", # Tailwind Rose
+    "#10b981", # Tailwind Emerald
+    "#84cc16", # Tailwind Lime
+    "#f59e0b", # Tailwind Amber
+    "#2dd4bf", # Tailwind Teal
+    "#facc15", # Tailwind Yellow
+    "#8b5cf6", # Tailwind Violet
+    "#f97316", # Tailwind Orange
 ]
