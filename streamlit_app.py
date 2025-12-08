@@ -228,7 +228,7 @@ with st.container(width=GRID_WIDTH):
     """
     This is an analysis of the "Movies" dataset, provided by the University
     of Washington's Interactive Data Lab (IDL) and used in several of their
-    [Vega-Lite examples.](https://vega.github.io/vega-lite/examples/)
+    [**Vega-Lite examples.**](https://vega.github.io/vega-lite/examples/)
 
 
     This dataset containers a collection of films and their performance
