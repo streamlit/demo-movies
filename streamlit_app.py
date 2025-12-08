@@ -22,7 +22,9 @@ from streamlit.column_config import NumberColumn
 import statsmodels.api as sm
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="Movies, movies, movies!", page_icon=":clapper:", layout="wide"
+)
 
 df = data.movies(engine="polars")
 TITLE_COL = "Title"
@@ -215,10 +217,13 @@ def perform_loess_regression(df, x_col, y_col, sigma_threshold, frac=0.66):
 # -----------------------------------------------------------------------------
 # Draw app
 
+
+st.title("Movies, movies, _movies!_")
+
+st.space()
+
 with st.container(width=GRID_WIDTH):
     """
-    # Movie analysis
-
     This is an analysis of the "Movies" dataset, provided by the University
     of Washington's Interactive Data Lab (IDL) and used in several of their
     [Vega-Lite examples.](https://vega.github.io/vega-lite/examples/)
@@ -577,3 +582,9 @@ with st.container(width=2 * GRID_WIDTH, height=GRID_HEIGHT):
         height="stretch",
         column_config=COLUMN_CONFIG,
     )
+
+st.space()
+
+st.header(
+    ":gray[:material/movie: :material/movie_info: :material/camera:]", anchor=False
+)
