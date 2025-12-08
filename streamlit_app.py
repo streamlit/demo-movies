@@ -549,7 +549,7 @@ with st.container(horizontal=True):
 
         line = base.mark_line(size=3).encode(y="Predicted")
 
-        points = base.mark_point(filled=True, size=MARK_SIZE).encode(
+        points = base.mark_point(filled=True, size=MARK_SIZE, opacity=0.5).encode(
             alt.Y(y_col, title=y_col),
             alt.Color(
                 "Status:N",
