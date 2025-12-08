@@ -18,7 +18,6 @@ import altair as alt
 from altair.datasets import data
 import polars as pl
 import numpy as np
-from streamlit.column_config import NumberColumn
 import statsmodels.api as sm
 
 
@@ -32,8 +31,9 @@ IMDB_COL = "IMDB Rating"
 RT_COL = "Rotten Tomatoes Rating"
 DIRECTOR_COL = "Director"
 HAS_RATINGS = pl.col(IMDB_COL).is_not_null() | pl.col(RT_COL).is_not_null()
-GRID_WIDTH = 600
-GRID_HEIGHT = 500
+TEXT_WIDTH = 700
+SMALLPLOT_WIDTH = 500
+SMALLPLOT_HEIGHT = 500
 MARK_SIZE = 70
 DIRECTOR_MARK_SIZE = 150
 
@@ -216,59 +216,68 @@ def perform_loess_regression(df, x_col, y_col, sigma_threshold, frac=0.66):
     return result_df
 
 
+def wide_centered_layout():
+    with st.container(horizontal_alignment="center"):
+        return st.container(
+            width=2 * SMALLPLOT_WIDTH + 16, horizontal_alignment="center"
+        )
+
+
 # -----------------------------------------------------------------------------
 # Draw app
 
 
-st.title("Movies, movies, _movies!_")
+with wide_centered_layout():
+    with st.container(width=TEXT_WIDTH):
+        st.title("Movies, movies, _movies!_")
 
-st.space()
+        st.space()
 
-with st.container(width=GRID_WIDTH):
-    """
-    This is an analysis of the "Movies" dataset, provided by the University
-    of Washington's Interactive Data Lab (IDL) and used in several of their
-    [**Vega-Lite examples.**](https://vega.github.io/vega-lite/examples/)
+        """
+        This is an analysis of the "Movies" dataset, provided by the University
+        of Washington's Interactive Data Lab (IDL) and used in several of their
+        [**Vega-Lite examples.**](https://vega.github.io/vega-lite/examples/)
 
 
-    This dataset containers a collection of films and their performance
-    metrics, including box office earnings, budgets, and audience ratings.
-    In order to serve as a teaching resource, this dataset contains known data
-    quality issues. However, it's still a very interesting dataset to play
-    around with, as you'll see below.
-    """
+        This dataset containers a collection of films and their performance
+        metrics, including box office earnings, budgets, and audience ratings.
+        In order to serve as a teaching resource, this dataset contains known
+        data quality issues. However, it's still a very interesting dataset to
+        play around with, as you'll see below.
+        """
+
+        st.space()
+
+        """
+        ## Part I: Ratings
+
+        **How much do critics and viewers agree on ratings?** In the analysis
+        below, a movie's Rotten Tomatoes Rating stands for what the
+        professional critics think, while its IMDB Rating stands for what the
+        general public thinks.
+
+        Running a LOESS regression on the data, we find a pretty good
+        correlation between the two variables, though with some prominent
+        outliers (shown with :green[**green crosses**]).
+        """
+
+    rating_df = (
+        df.select(TITLE_COL, DIRECTOR_COL, IMDB_COL, RT_COL)
+        .filter(HAS_RATINGS)
+        .with_columns(
+            delta=pl.col(IMDB_COL) / 10 - pl.col(RT_COL) / 100,
+        )
+    )
+
+    rating_model_df = perform_loess_regression(
+        rating_df, IMDB_COL, RT_COL, sigma_threshold=2
+    )
 
     st.space()
 
-    """
-    ## Part I: Ratings
-
-    **How much do critics and viewers agree on ratings?** In the analysis
-    below, a movie's Rotten Tomatoes Rating stands for what the professional
-    critics think, while its IMDB Rating stands for what the general public
-    thinks.
-
-    Running a LOESS regression on the data, we find a pretty good correlation
-    between the two variables, though with some prominent outliers (shown with
-    :green[**green crosses**]).
-    """
-
-
-rating_df = (
-    df.select(TITLE_COL, DIRECTOR_COL, IMDB_COL, RT_COL)
-    .filter(HAS_RATINGS)
-    .with_columns(
-        delta=pl.col(IMDB_COL) / 10 - pl.col(RT_COL) / 100,
-    )
-)
-
-rating_model_df = perform_loess_regression(
-    rating_df, IMDB_COL, RT_COL, sigma_threshold=2
-)
-
-with st.container(horizontal=True):
-    with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
+    with st.container(width=TEXT_WIDTH):
         cols = st.columns([0.7, 0.3])
+
         with cols[0]:
             st.subheader("Distribution of ratings from critics vs viewers")
             st.altair_chart(
@@ -298,7 +307,10 @@ with st.container(horizontal=True):
         "Rotten Tomatoes scores."
     )
 
-    with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
+    st.space()
+
+    cols = st.columns(2, border=True)
+    with cols[0]:
         st.subheader(
             "Movies most beloved by viewers and disliked by critics",
             help=help_text,
@@ -312,7 +324,7 @@ with st.container(horizontal=True):
             height="stretch",
         )
 
-    with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
+    with cols[1]:
         st.subheader(
             "Movies most beloved by critics and disliked by viewers",
             help=help_text,
@@ -326,75 +338,74 @@ with st.container(horizontal=True):
             height="stretch",
         )
 
+    # -----------------------------------------------------------------------------
+    # Part 2
 
-# -----------------------------------------------------------------------------
-# Part 2
+    st.space("large")
 
-st.space("large")
+    with st.container(width=TEXT_WIDTH):
+        """
+        ## Part II: Top and bottom-rated directors
 
-with st.container(width=GRID_WIDTH):
-    """
-    ## Part II: Top and bottom-rated directors
+        **Which directors are the most and least beloved?** Do critics and viewers
+        agree on this at least?
 
-    **Which directors are the most and least beloved?** Do critics and viewers
-    agree on this at least?
+        From a quick look at the shape of scatterplot below, even though the median
+        scores for different directions are well-correlated between IMDB and Rotten
+        Tomatoes, the list of top and bottom-rated directors for each are pretty
+        different -- especially when considering the exact ordering.
 
-    From a quick look at the shape of scatterplot below, even though the median
-    scores for different directions are well-correlated between IMDB and Rotten
-    Tomatoes, the list of top and bottom-rated directors for each are pretty
-    different -- especially when considering the exact ordering.
+        In the visualizations below, :rainbow[**colors**] and **shapes** are used to help
+        more quickly identify specific directors across each chart.
+        """
 
-    In the visualizations below, :rainbow[**colors**] and **shapes** are used to help
-    more quickly identify specific directors across each chart.
-    """
+        min_movies = st.slider(
+            "Only consider directors with at least this many movies",
+            min_value=1,
+            max_value=10,
+            value=5,
+        )
 
-    min_movies = st.slider(
-        "Only consider directors with at least this many movies",
-        min_value=1,
-        max_value=10,
-        value=5,
-    )
+        director_df = rating_df.filter(pl.col(DIRECTOR_COL).is_not_null()).with_columns(
+            first_letter=pl.col(DIRECTOR_COL).str.head(1)
+        )
 
+        director_medians_df = (
+            director_df.group_by(DIRECTOR_COL)
+            .agg(
+                **{
+                    "num_movies": pl.len(),
+                    "first_letter": pl.col("first_letter").first(),
+                    IMDB_COL: pl.col(IMDB_COL).median(),
+                    RT_COL: pl.col(RT_COL).median(),
+                }
+            )
+            .filter(pl.col("num_movies") >= min_movies)
+        )
 
-director_df = rating_df.filter(pl.col(DIRECTOR_COL).is_not_null()).with_columns(
-    first_letter=pl.col(DIRECTOR_COL).str.head(1)
-)
+        all_directors_list = director_medians_df.get_column(DIRECTOR_COL).to_list()
 
-director_medians_df = (
-    director_df.group_by(DIRECTOR_COL)
-    .agg(
-        **{
-            "num_movies": pl.len(),
-            "first_letter": pl.col("first_letter").first(),
-            IMDB_COL: pl.col(IMDB_COL).median(),
-            RT_COL: pl.col(RT_COL).median(),
-        }
-    )
-    .filter(pl.col("num_movies") >= min_movies)
-)
+        st.space()
 
-all_directors_list = director_medians_df.get_column(DIRECTOR_COL).to_list()
+        st.subheader("Distribution of ratings from critics vs viewers")
+        st.altair_chart(
+            alt.Chart(director_medians_df, height=SMALLPLOT_HEIGHT)
+            .mark_point(filled=True, size=DIRECTOR_MARK_SIZE)
+            .encode(
+                alt.X(IMDB_COL, type="quantitative"),
+                alt.Y(RT_COL, type="quantitative"),
+                alt.Color(DIRECTOR_COL, type="nominal")
+                .scale(domain=all_directors_list)
+                .legend(None),
+                alt.Shape(DIRECTOR_COL, type="nominal")
+                .scale(domain=all_directors_list)
+                .legend(None),
+                tooltip=[DIRECTOR_COL, IMDB_COL, RT_COL, "num_movies"],
+            )
+        )
 
-with st.container(height=GRID_HEIGHT, width=GRID_WIDTH):
-    st.subheader("Distribution of ratings from critics vs viewers")
-    st.altair_chart(
-        alt.Chart(director_medians_df)
-        .mark_point(filled=True, size=DIRECTOR_MARK_SIZE)
-        .encode(
-            alt.X(IMDB_COL, type="quantitative"),
-            alt.Y(RT_COL, type="quantitative"),
-            alt.Color(DIRECTOR_COL, type="nominal")
-            .scale(domain=all_directors_list)
-            .legend(None),
-            alt.Shape(DIRECTOR_COL, type="nominal")
-            .scale(domain=all_directors_list)
-            .legend(None),
-            tooltip=[DIRECTOR_COL, IMDB_COL, RT_COL, "num_movies"],
-        ),
-        height="stretch",
-    )
+    st.space()
 
-with st.container(horizontal=True):
     for i in range(2):
         if i == 0:
             metric_name = IMDB_COL
@@ -409,7 +420,9 @@ with st.container(horizontal=True):
             )
             x_domain = [0, 100]
 
-        with st.container(width=GRID_WIDTH, border=True):
+        cols = st.columns(2, border=True)
+
+        with cols[0]:
             top_directors_df = director_medians_df.sort(
                 metric_name, descending=True
             ).head(10)
@@ -429,7 +442,7 @@ with st.container(horizontal=True):
                 color_domain=all_directors_list,
             )
 
-        with st.container(width=GRID_WIDTH, border=True):
+        with cols[1]:
             bottom_directors_df = director_medians_df.sort(metric_name).head(10)
 
             bottom_directors_set = set(
@@ -449,144 +462,139 @@ with st.container(horizontal=True):
                 color_domain=all_directors_list,
             )
 
+    # -----------------------------------------------------------------------------
+    # Part 3
 
-# -----------------------------------------------------------------------------
-# Part 3
+    st.space("large")
 
-st.space("large")
+    with st.container(width=TEXT_WIDTH):
+        """
+        ## Part III: Predictions
 
-with st.container(width=GRID_WIDTH):
+        **How well can we predict, say, the US DVD Sales of a movie given the movie's
+        IMDB rating?** What if we user from the Rotten Tomatoes rating for the
+        prediction instead? Use the knobs below to run a regression and find out.
+
+        The :blue[**blue**] line is the model prediction, and outliers are shown as
+        :green[**green crosses**].
+        """
+
+    numeric_cols = [
+        "US Gross",
+        "Worldwide Gross",
+        "US DVD Sales",
+        "Production Budget",
+        "IMDB Rating",
+        "Rotten Tomatoes Rating",
+    ]
+
+    with st.container(width=TEXT_WIDTH):
+        st.space()
+
+        cols = st.columns(2)
+
+        with cols[0]:
+            x_col = st.selectbox(
+                "X Axis (predictor)", options=numeric_cols, index=4
+            )  # Default IMDB
+
+        with cols[1]:
+            y_col = st.selectbox(
+                "Y Axis (target)", options=numeric_cols, index=2
+            )  # Default DVD Sales
+
+        sigma_val = st.slider(
+            "Confidence interval (sigma)",
+            min_value=0.5,
+            max_value=4.0,
+            value=2.0,
+            step=0.1,
+            help="Determines the width of the confidence band. Points outside this band are outliers.",
+        )
+
+        regression_type = st.segmented_control(
+            "Regression type",
+            ["Linear regression", "LOESS regression"],
+            default="Linear regression",
+        )
+
+        if not x_col or not y_col:
+            st.info("Please select columns to visualize.")
+            st.stop()
+
+        if regression_type == "Linear regression":
+            model_df = perform_linear_regression(df, x_col, y_col, sigma_val)
+        else:
+            model_df = perform_loess_regression(df, x_col, y_col, sigma_val)
+
+        outliers = model_df.filter(pl.col("Status") == "Outlier").select(
+            TITLE_COL, IMDB_COL, RT_COL
+        )
+        num_outliers = len(model_df.filter(pl.col("Status") == "Outlier"))
+
+        st.space()
+
+        with st.container(height=SMALLPLOT_HEIGHT, border=False):
+            base = alt.Chart(model_df).encode(
+                alt.X(x_col, title=x_col, scale=alt.Scale(zero=False))
+            )
+
+            band = base.mark_area(opacity=0.1).encode(
+                alt.Y("Lower Bound"),
+                alt.Y2("Upper Bound"),
+                tooltip=[
+                    alt.Tooltip("Lower Bound", format=",.0f"),
+                    alt.Tooltip("Upper Bound", format=",.0f"),
+                ],
+            )
+
+            line = base.mark_line(size=3).encode(y="Predicted")
+
+            points = base.mark_point(filled=True, size=MARK_SIZE, opacity=0.5).encode(
+                alt.Y(y_col, title=y_col),
+                alt.Color(
+                    "Status:N",
+                ).legend(None),
+                alt.Shape("Status:N").scale(range=["circle", "cross"]).legend(None),
+                tooltip=[TITLE_COL, x_col, y_col],
+            )
+
+            final_chart = (band + points + line).configure_legend(orient="bottom")
+
+            st.subheader(f"{y_col} by {x_col}")
+            st.altair_chart(final_chart, width="stretch", height="stretch")
+
+    st.subheader("Outliers")
+
     """
-    ## Part III: Predictions
-
-    **How well can we predict, say, the US DVD Sales of a movie given the movie's
-    IMDB rating?** What if we user from the Rotten Tomatoes rating for the
-    prediction instead? Use the knobs below to run a regression and find out.
-
-    The :blue[**blue**] line is the model prediction, and outliers are shown as
-    :green[**green crosses**].
+    These are the movies that do not fit the model.
     """
 
-numeric_cols = [
-    "US Gross",
-    "Worldwide Gross",
-    "US DVD Sales",
-    "Production Budget",
-    "IMDB Rating",
-    "Rotten Tomatoes Rating",
-]
+    with st.container(horizontal=True):
+        with st.container(width="content"):
+            with st.container(border=True, width="content"):
+                st.metric(
+                    "Number of outliers",
+                    num_outliers,
+                    help="These are films that the model cannot predict well.",
+                )
 
-with st.container(width=GRID_WIDTH):
+        with st.container(width="stretch"):
+            st.dataframe(outliers, column_config=COLUMN_CONFIG, height=SMALLPLOT_HEIGHT)
+
+    # -----------------------------------------------------------------------------
+    # Part 4
+
+    st.space("large")
+
+    """
+    ## Part IV: Browse the full dataset
+    """
+
     st.space()
 
-    cols = st.columns(2)
-
-    with cols[0]:
-        x_col = st.selectbox(
-            "X Axis (predictor)", options=numeric_cols, index=4
-        )  # Default IMDB
-
-    with cols[1]:
-        y_col = st.selectbox(
-            "Y Axis (target)", options=numeric_cols, index=2
-        )  # Default DVD Sales
-
-    sigma_val = st.slider(
-        "Confidence interval (sigma)",
-        min_value=0.5,
-        max_value=4.0,
-        value=2.0,
-        step=0.1,
-        help="Determines the width of the confidence band. Points outside this band are outliers.",
-    )
-
-    regression_type = st.segmented_control(
-        "Regression type",
-        ["Linear regression", "LOESS regression"],
-        default="Linear regression",
-    )
-
-    st.space()
-
-
-if not x_col or not y_col:
-    st.info("Please select columns to visualize.")
-    st.stop()
-
-
-if regression_type == "Linear regression":
-    model_df = perform_linear_regression(df, x_col, y_col, sigma_val)
-else:
-    model_df = perform_loess_regression(df, x_col, y_col, sigma_val)
-
-outliers = model_df.filter(pl.col("Status") == "Outlier").select(
-    TITLE_COL, IMDB_COL, RT_COL
-)
-num_outliers = len(model_df.filter(pl.col("Status") == "Outlier"))
-
-st.metric(
-    "Number of outliers",
-    num_outliers,
-    help="These are films that the model cannot predict well.",
-)
-
-st.space()
-
-with st.container(horizontal=True):
-    with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
-        base = alt.Chart(model_df).encode(
-            alt.X(x_col, title=x_col, scale=alt.Scale(zero=False))
-        )
-
-        band = base.mark_area(opacity=0.1).encode(
-            alt.Y("Lower Bound"),
-            alt.Y2("Upper Bound"),
-            tooltip=[
-                alt.Tooltip("Lower Bound", format=",.0f"),
-                alt.Tooltip("Upper Bound", format=",.0f"),
-            ],
-        )
-
-        line = base.mark_line(size=3).encode(y="Predicted")
-
-        points = base.mark_point(filled=True, size=MARK_SIZE, opacity=0.5).encode(
-            alt.Y(y_col, title=y_col),
-            alt.Color(
-                "Status:N",
-            ).legend(None),
-            alt.Shape("Status:N").scale(range=["circle", "cross"]).legend(None),
-            tooltip=[TITLE_COL, x_col, y_col],
-        )
-
-        final_chart = (band + points + line).configure_legend(orient="bottom")
-
-        st.subheader(f"{y_col} by {x_col}")
-        st.altair_chart(final_chart, width="stretch", height="stretch")
-
-    with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
-        st.subheader("List of outliers")
-        st.dataframe(outliers, column_config=COLUMN_CONFIG, height="stretch")
-
-
-# -----------------------------------------------------------------------------
-# Part 4
-
-st.space("large")
-
-"""
-## Part IV: Browse the full dataset
-"""
-
-with st.container(width=2 * GRID_WIDTH, height=GRID_HEIGHT):
-    st.subheader("Full data")
     st.dataframe(
         df,
-        height="stretch",
+        height=SMALLPLOT_HEIGHT,
         column_config=COLUMN_CONFIG,
     )
-
-st.space()
-
-st.header(
-    ":gray[:material/movie: :material/movie_info: :material/camera:]", anchor=False
-)
