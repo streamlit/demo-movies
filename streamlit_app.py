@@ -34,6 +34,8 @@ DIRECTOR_COL = "Director"
 HAS_RATINGS = pl.col(IMDB_COL).is_not_null() | pl.col(RT_COL).is_not_null()
 GRID_WIDTH = 600
 GRID_HEIGHT = 500
+MARK_SIZE = 70
+DIRECTOR_MARK_SIZE = 150
 
 COLUMN_CONFIG = {
     TITLE_COL: st.column_config.TextColumn(pinned=True),
@@ -97,7 +99,7 @@ def draw_histogram(df, metric_name):
     )
 
 
-def draw_scatter_category_chart(title, data, x_col, y_col, x_domain, color_domain):
+def draw_director_median_chart(title, data, x_col, y_col, x_domain, color_domain):
     data = data.drop_nulls(subset=[y_col])
 
     medians = (
@@ -112,7 +114,7 @@ def draw_scatter_category_chart(title, data, x_col, y_col, x_domain, color_domai
         alt.Y(f"{y_col}:N", sort=sort_order, title=None),
     )
 
-    points = base.mark_point(filled=True, size=MARK_SIZE).encode(
+    points = base.mark_point(filled=True, size=DIRECTOR_MARK_SIZE).encode(
         alt.X(f"{x_col}:Q", title=f"{x_col}").scale(zero=True, domain=x_domain),
         alt.Color(DIRECTOR_COL, type="nominal").scale(domain=color_domain).legend(None),
         alt.Shape(DIRECTOR_COL, type="nominal").scale(domain=color_domain).legend(None),
@@ -247,8 +249,8 @@ with st.container(width=GRID_WIDTH):
     thinks.
 
     Running a LOESS regression on the data, we find a pretty good correlation
-    between the two variables, though with some prominent outliers (in
-    :red[**red**]).
+    between the two variables, though with some prominent outliers (shown with
+    :red[**red crosses**]).
     """
 
 
@@ -271,11 +273,12 @@ with st.container(horizontal=True):
             st.subheader("Distribution of ratings from critics vs viewers")
             st.altair_chart(
                 alt.Chart(rating_model_df)
-                .mark_point(filled=True, size=70, opacity=0.333)
+                .mark_point(filled=True, size=MARK_SIZE, opacity=0.5)
                 .encode(
                     alt.X(IMDB_COL, type="quantitative"),
                     alt.Y(RT_COL, type="quantitative"),
                     alt.Color("Status:N").legend(None),
+                    alt.Shape("Status:N").scale(range=["circle", "cross"]).legend(None),
                     tooltip=[TITLE_COL, DIRECTOR_COL, IMDB_COL, RT_COL, "Status"],
                 ),
                 height="stretch",
@@ -371,15 +374,13 @@ director_medians_df = (
 )
 
 all_directors_list = director_medians_df.get_column(DIRECTOR_COL).to_list()
-MARK_SIZE = 150
 
 with st.container(height=GRID_HEIGHT, width=GRID_WIDTH):
     st.subheader("Distribution of ratings from critics vs viewers")
     st.altair_chart(
         alt.Chart(director_medians_df)
-        .mark_point(filled=True, size=MARK_SIZE)
+        .mark_point(filled=True, size=DIRECTOR_MARK_SIZE)
         .encode(
-            alt.Text("first_letter:N"),
             alt.X(IMDB_COL, type="quantitative"),
             alt.Y(RT_COL, type="quantitative"),
             alt.Color(DIRECTOR_COL, type="nominal")
@@ -419,7 +420,7 @@ with st.container(horizontal=True):
                 pl.col(DIRECTOR_COL).is_in(top_directors_set)
             )
 
-            draw_scatter_category_chart(
+            draw_director_median_chart(
                 f"Top 10 directors by {metric_name}",
                 data=top_dir_df,
                 x_col=metric_name,
@@ -439,7 +440,7 @@ with st.container(horizontal=True):
                 pl.col(DIRECTOR_COL).is_in(bottom_directors_set)
             )
 
-            draw_scatter_category_chart(
+            draw_director_median_chart(
                 f"Bottom 10 directors by {metric_name}",
                 data=bottom_dir_df,
                 x_col=metric_name,
@@ -462,8 +463,8 @@ with st.container(width=GRID_WIDTH):
     IMDB rating?** What if we user from the Rotten Tomatoes rating for the
     prediction instead? Use the knobs below to run a regression and find out.
 
-    The :blue[**blue**] line is the model prediction, and outliers are shown in
-    :red[**red**].
+    The :blue[**blue**] line is the model prediction, and outliers are shown as
+    :red[**red crosses**].
     """
 
 numeric_cols = [
@@ -534,12 +535,12 @@ st.space()
 with st.container(horizontal=True):
     with st.container(width=GRID_WIDTH, height=GRID_HEIGHT):
         base = alt.Chart(model_df).encode(
-            x=alt.X(x_col, title=x_col, scale=alt.Scale(zero=False))
+            alt.X(x_col, title=x_col, scale=alt.Scale(zero=False))
         )
 
         band = base.mark_area(opacity=0.1).encode(
-            y="Lower Bound",
-            y2="Upper Bound",
+            alt.Y("Lower Bound"),
+            alt.Y2("Upper Bound"),
             tooltip=[
                 alt.Tooltip("Lower Bound", format=",.0f"),
                 alt.Tooltip("Upper Bound", format=",.0f"),
@@ -548,11 +549,12 @@ with st.container(horizontal=True):
 
         line = base.mark_line(size=3).encode(y="Predicted")
 
-        points = base.mark_circle(size=60).encode(
-            y=alt.Y(y_col, title=y_col),
-            color=alt.Color(
+        points = base.mark_point(filled=True, size=MARK_SIZE).encode(
+            alt.Y(y_col, title=y_col),
+            alt.Color(
                 "Status:N",
             ).legend(None),
+            alt.Shape("Status:N").scale(range=["circle", "cross"]).legend(None),
             tooltip=[TITLE_COL, x_col, y_col],
         )
 
