@@ -10,18 +10,18 @@ headingFontSizes = ["3rem", "2rem", "1rem"]
 # headingFontWeights = 800
 showWidgetBorder = true
 
-primaryColor = "#3b82f6"
+primaryColor = "#0ea5e9"
 borderColor = "#e0e7ff"
 secondaryBackgroundColor = "#fff"
 
 greenColor = "#10b981"
 redColor = "#f43f5e"
-blueColor = "#3b82f6"
+blueColor = "#0ea5e9"
 redTextColor = "#f43f5e"
-blueTextColor = "#3b82f6"
+blueTextColor = "#0ea5e9"
 
 chartCategoricalColors = [
-    "#3b82f6", # Blue
+    "#0ea5e9", # Blue
     "#f43f5e", # Rose
     "#10b981", # Green
     "#84cc16", # Lime
@@ -30,4 +30,4 @@ chartCategoricalColors = [
     "#facc15", # Yellow
     "#8b5cf6", # Violet
     "#f97316", # Orange
- ]
+]
