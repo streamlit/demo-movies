@@ -256,7 +256,7 @@ with wide_centered_layout():
         professional critics think, while its IMDB Rating stands for what the
         general public thinks.
 
-        Running a LOESS regression on the data, we find a pretty good
+        Running a linear regression on the data, we find a pretty good
         correlation between the two variables, though with some prominent
         outliers (shown with :green[**green crosses**]).
         """
@@ -269,7 +269,7 @@ with wide_centered_layout():
         )
     )
 
-    rating_model_df = perform_loess_regression(
+    rating_model_df = perform_linear_regression(
         rating_df, IMDB_COL, RT_COL, sigma_threshold=2
     )
 
