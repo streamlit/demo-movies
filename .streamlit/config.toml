@@ -1,13 +1,12 @@
 [theme]
 font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-headingFont = "'IBM Plex Serif':https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+headingFont = "'IBM Plex Serif':https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
 
 baseFontSize = 14
 
-# headingFontWeights = [300, 400, 400, 300, 300, 300]
 headingFontSizes = ["3rem", "2rem", "1rem"]
+headingFontWeights = [700, 600, 600]
 
-# headingFontWeights = 800
 showWidgetBorder = true
 
 primaryColor = "#0ea5e9"             # Tailwind Sky
