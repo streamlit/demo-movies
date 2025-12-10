@@ -528,7 +528,7 @@ with wide_centered_layout():
             model_df = perform_loess_regression(df, x_col, y_col, sigma_val)
 
         outliers = model_df.filter(pl.col("Status") == "Outlier").select(
-            TITLE_COL, IMDB_COL, RT_COL
+            TITLE_COL, DIRECTOR_COL, IMDB_COL, RT_COL
         )
         num_outliers = len(model_df.filter(pl.col("Status") == "Outlier"))
 
