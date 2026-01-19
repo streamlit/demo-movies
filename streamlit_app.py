@@ -239,7 +239,7 @@ with wide_centered_layout():
         [**Vega-Lite examples.**](https://vega.github.io/vega-lite/examples/)
 
 
-        This dataset containers a collection of films and their performance
+        This dataset contains a collection of films and their performance
         metrics, including box office earnings, budgets, and audience ratings.
         In order to serve as a teaching resource, this dataset contains known
         data quality issues. However, it's still a very interesting dataset to
